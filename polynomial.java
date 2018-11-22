@@ -1,4 +1,4 @@
-
+//Rohan Deshpande, Tejas Nimkar period 7
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -12,31 +12,15 @@ public class polynomial {
 
 	
 	term start = new term(0,0);
-	private double TOLERANCE = 0.00000001;
 	term end = start;
 	private LinkedList<term> polynomial;
 
 
 	public polynomial() {
 		polynomial = new LinkedList<term>();
-//		polynomial.add(new term(0, 0));
-//		polynomial.add(new term(3, 4));
-//		polynomial.add(new term(1, 3));
 	}
 
-	
-	public void removeTerm(term t)
-	{
-		Iterator<term> iterator = polynomial.iterator();
-		while(iterator.hasNext())
-		{
-			if(iterator.next().equals(t))
-			{
-				iterator.remove();
-			}
-		}
-		
-	}
+
 	
 	public void addTerm(int coef,int base)
 	{
@@ -78,7 +62,7 @@ public class polynomial {
 			newderList.addTerm(val.getCoef(), val.getExp());
 		}
 		
-		return newderList;
+		return sortPolynomial(newderList);
 	}
 	
 	public LinkedList<term> getPolynomial() {
@@ -102,8 +86,51 @@ public class polynomial {
 			term value = listb.next();
 			add.addTerm(value.getCoef(), value.getExp());
 		}
+		//return sortPolynomial(add);
 		return add;
 	}
+	
+	
+	public static polynomial MultiplyLinkedList(LinkedList<term> a, LinkedList<term> b)
+	{ 
+		polynomial MultipliedNoSimplfy = new polynomial();
+		Iterator<term> firsts = a.iterator();
+		LinkedList<term> res = new LinkedList<term>();
+		while(firsts.hasNext())
+		{
+			term firstVal = firsts.next();
+			Iterator<term> sec = b.iterator();
+			while(sec.hasNext())
+			{
+				term secVal = sec.next();
+				res.add(new term(firstVal.getCoef() * secVal.getCoef(), firstVal.getExp() + secVal.getExp()));
+			}
+			
+		}
+		Iterator<term> iter =  res.iterator();	
+		while(iter.hasNext())
+		{
+			term val = iter.next();
+			MultipliedNoSimplfy.addTerm(val.getCoef(),val.getExp());
+		}
+		return  MultipliedNoSimplfy;
+	}
+	
+		
+	public polynomial multiply(polynomial one)
+	{
+		return sortPolynomial(MultiplyLinkedList(this.getPolynomial(),one.getPolynomial()));
+	}
+	public polynomial add(polynomial one)
+	{
+		return sortPolynomial(AddLinkedList(this.getPolynomial(),one.getPolynomial()));
+	}
+	
+
+	public void setPolynomial(LinkedList<term> polynomial) {
+		this.polynomial = polynomial;
+	}
+
 	public static term[] listToArray(LinkedList<term> a)
 	{
 		term[] array = new term[a.size()];
@@ -117,62 +144,33 @@ public class polynomial {
 		}
 		return array;
 	}
-	
-	public static polynomial MultiplyLinkedList(LinkedList<term> a, LinkedList<term> b)
-	{ 
-		//LinkedList<term> addList = new LinkedList<term>();
-		polynomial MultipliedNoSimplfy = new polynomial();
-		term[] first = listToArray(a);
-		term[] second = listToArray(b);
-		LinkedList<term> res = new LinkedList<term>();
-		
-		for (int i = 0; i < first.length; i++) 
+	public static LinkedList<term> ArrayTolist(term[] a)
+	{
+		LinkedList<term> temp = new LinkedList<term>();
+		for(term v : a)
 		{
-			for (int j = 0; j < second.length; j++) 
-			{
-				res.add(new term(first[i].getCoef() * second[j].getCoef()
-						, first[i].getExp() + second[j].getExp()));
-			}
-			
+			temp.add(v);
 		}
-		Iterator<term> iter =  res.iterator();	
-		while(iter.hasNext())
-		{
-			term val = iter.next();
-			MultipliedNoSimplfy.addTerm(val.getCoef(),val.getExp());
-		}
-		return  MultipliedNoSimplfy;
-	}
-		
-	public polynomial multiply(polynomial one)
-	{
-		return (MultiplyLinkedList(this.getPolynomial(),one.getPolynomial()));
-	}
-	public polynomial add(polynomial one)
-	{
-		return AddLinkedList(this.getPolynomial(),one.getPolynomial());
-	}
-	
-
-	public void setPolynomial(LinkedList<term> polynomial) {
-		this.polynomial = polynomial;
+		return temp;
 	}
 
-
-	public polynomial sortPolynomial(polynomial P)
+	public static polynomial sortPolynomial(polynomial P)
 	{
-		Iterator<term> iter = P.getPolynomial().iterator();
 		LinkedList<term> sorted = new LinkedList<term>();
 		term[] temp = listToArray(P.getPolynomial());
-		int max = 0;
 		for(int i = 0; i < temp.length; i++)
 		{
-			if(temp[i].getExp() > temp[max].getExp())
+			for(int j = 0; j < temp.length-1; j++)
 			{
-				max = i;
-			}
-			sorted.add(new term(temp[max].getCoef(),temp[max].getExp()));
+				if(temp[j].getExp() < temp[j+1].getExp())
+				{
+					term a = temp[j];
+					temp[j] = temp[j+1];
+					temp[j+1] = a;
+				}
+			}		
 		}
+		sorted = ArrayTolist(temp);
 		Iterator<term> itermain = sorted.iterator();
 		polynomial ne = new polynomial();
 		while(itermain.hasNext())
@@ -182,17 +180,19 @@ public class polynomial {
 		}
 		return ne;
 	}
+
 	public String toString() {
 		Iterator<term> iterator = polynomial.iterator();
 		String string = "";
 		while (iterator.hasNext()) {
 			term nextvalue = iterator.next();
 			if (nextvalue.getCoef() > 0)
-				string += " +" + nextvalue;
+				string += " + " + nextvalue;
 			else if(nextvalue.getCoef() < 0)
 				string += nextvalue;
 			else if(nextvalue.getCoef() ==0)
 				string += "";
+			
 		}
 		return string;
 	}
